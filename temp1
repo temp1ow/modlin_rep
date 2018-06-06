@@ -1,0 +1,42 @@
+import urllib2
+import json
+
+#fileformatlocaldb (db.txt)- user:project:last_sha
+
+user_global="alexey-igrychev"
+project_global="dapp"
+def get_commits(user,user_project):
+    
+    all_commits=json.load(urllib2.urlopen("https://api.github.com/repos/"+user+"/"+user_project+"/commits"))
+    return all_commits 
+    
+#print get_commits("alexey-igrychev","dapp")[0]["sha"]
+
+
+def check_last_local_commit(user,user_project,sha):
+    fileDB=open("blya.txt","wr")
+    dataDB=fileDB.read()
+    if dataDB.split(":")[0]==user:
+        print "ZBS"
+        if dataDB.split(":")[1]==user_project:
+            print "ZBS"
+            if dataDB.split(":")[2]==sha:
+                print "ZBS. Not nothing new commits (not do git pull prject)"
+                #ХЗ можно кидать старый архив в ответку (возвращать его в функции этой)
+            else:
+                os.exec("cd /home/dirforreps/"+user"/"+user_projec+"/"+"&& git pull ")
+        else:
+            create_user_project=user+":"+user_project+":"+sha
+            fileDB.write(create_user_project)
+    else: 
+        print "user not found in BD"
+        url_for_repo="https://github.com/"+user+"/"+user_project
+        os.exec("mkdir -p /home/dirforreps/"+user+"/"+user_project+" cd /home/dirforreps/"+user+"/"+user_project+"git pull "+url_for_repo+" .")
+        create_user_project=user+":"+user_project+":"+sha 
+        fileDB.write(create_user_project) #ХЗ почему не записывает, нужен норм интерпритатор или я жопорук
+        #ХЗ можно кидать архив с этой версией в ответ (возвразать его в функции этой)
+    fileDB.close()
+
+
+sha_last=get_commits(user_global,project_global)[0]["sha"]
+check_last_local_commit(user_global,project_global,sha_last)
